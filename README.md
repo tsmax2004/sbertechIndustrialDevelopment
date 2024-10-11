@@ -1,0 +1,2 @@
+# sbertechIndustrialDevelopment
+Репозиторий для дз
