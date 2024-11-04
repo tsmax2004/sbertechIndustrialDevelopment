@@ -1,0 +1,24 @@
+---
+- name: Install Flask
+  pip:
+    name: Flask
+  become: yes
+
+- name: Create directory for app
+  file:
+    path: /opt/app
+    state: directory
+    owner: "{{ ansible_user }}"
+  become: yes
+
+- name: Copy app files
+  copy:
+    src: "{{ item }}"
+    dest: /opt/app/
+  with_items:
+    - ../src/app.py
+    - ../src/requirements.txt
+  become: yes
+
+- name: Run app
+  shell: nohup python3 /opt/app/app.py </dev/null >/dev/null 2>&1 &

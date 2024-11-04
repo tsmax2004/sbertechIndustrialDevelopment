@@ -1,0 +1,22 @@
+services:
+  host1:
+    build: ./host
+    tty: true
+    networks:
+      - internal-net
+
+  host2:
+    build: ./host
+    tty: true
+    networks:
+      - internal-net
+
+  control-node:
+    build: ./ansible
+    tty: true
+    networks:
+      - internal-net
+
+networks:
+  internal-net:
+    driver: bridge
