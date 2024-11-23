@@ -3,7 +3,7 @@ pipeline {
 
     stages {
 
-        stage('Clone repository') {
+        stage('Clone git repository') {
             steps {
                 git branch: 'hw4', url: 'https://github.com/tsmax2004/sbertechIndustrialDevelopment.git'
             }
@@ -15,13 +15,13 @@ pipeline {
             }
         }
 
-        stage('Rub tests') {
+        stage('pytest') {
             steps {
                 sh "pytest hw4/app/tests --cov=app.src.main --cov-report xml:coverage.xml --alluredir=allure-results || true"
             }
         }
 
-        stage('Maven Clean') {
+        stage('maven clean') {
             steps {
                 withSonarQubeEnv('sonar') {
                     tool name: 'maven', type: 'maven'
@@ -33,8 +33,8 @@ pipeline {
         stage('Reports allure') {
             steps {
                 allure([
-                reportBuildPolicy: 'ALWAYS',
-                results: [[path: 'report']]
+                    reportBuildPolicy: 'ALWAYS',
+                    results: [[path: 'report']]
                 ])
             }
         }
