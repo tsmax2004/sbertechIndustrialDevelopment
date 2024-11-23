@@ -1,0 +1,55 @@
+pipeline {
+    agent any
+
+    stages {
+
+        stage('Clone git repository') {
+            steps {
+                git branch: 'hw4', url: 'https://github.com/tsmax2004/sbertechIndustrialDevelopment.git'
+            }
+        }
+
+        stage('Install requirements') {
+            steps {
+                sh "pip install --no-cache-dir --break-system-packages -r hw4/app/src/requirements.txt"
+            }
+        }
+
+        stage('pytest') {
+            steps {
+                sh "pytest hw4/app/tests --cov=app.src.main --cov-report xml:coverage.xml --alluredir=allure-results || true"
+            }
+        }
+
+        stage('maven clean') {
+            steps {
+                withSonarQubeEnv('sonar') {
+                    tool name: 'maven', type: 'maven'
+                    sh 'mvn clean -f hw4/pom.xml sonar:sonar -X'
+                }
+            }
+        }
+
+        stage('Reports allure') {
+            steps {
+                allure([
+                    reportBuildPolicy: 'ALWAYS',
+                    results: [[path: 'report']]
+                ])
+            }
+        }
+
+        stage('Deploy app') {
+            steps {
+                sh "cd /ansible && ansible-playbook playbook.yml --extra-vars path_to_app=${env.WORKSPACE}/hw4"
+            }
+        }
+
+    }
+
+    post {
+        always {
+            echo 'Done'
+        }
+    }
+}
