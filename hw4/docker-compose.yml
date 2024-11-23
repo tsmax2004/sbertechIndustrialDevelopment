@@ -1,0 +1,70 @@
+services:
+  app_db:
+    image: postgres:13
+    environment:
+      - POSTGRES_DB=postgres
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=password
+    networks:
+      - internal-net
+
+  host1:
+    build: ./host
+    tty: true
+    networks:
+      - internal-net
+
+  host2:
+    build: ./host
+    tty: true
+    networks:
+      - internal-net
+
+  jenkins:
+    build: ./jenkins
+    ports:
+      - 8080:8080
+      - 50000:50000
+    container_name: jenkins
+    volumes:
+      - ./jenkins_data:/var/jenkins_home
+      - ./ansible:/ansible
+    networks:
+      - internal-net
+
+  sonarqube:
+    image: sonarqube
+    depends_on:
+      - db
+    environment:
+      SONAR_JDBC_URL: jdbc:postgresql://db:5432/sonar
+      SONAR_JDBC_USERNAME: sonar
+      SONAR_JDBC_PASSWORD: sonar
+      ES_JAVA_OPTS: "-Xms750m -Xmx750m"
+    volumes:
+      - ./sonarqube/sonarqube_data:/opt/sonarqube/data
+      - ./sonarqube/sonarqube_extensions:/opt/sonarqube/extensions
+      - ./sonarqube/sonarqube_logs:/opt/sonarqube/logs
+    ports:
+      - "9000:9000"
+    networks:
+      - internal-net
+
+  db:
+    image: postgres:12
+    environment:
+      POSTGRES_USER: sonar
+      POSTGRES_PASSWORD: sonar
+    volumes:
+      - pg:/var/lib/postgresql
+      - pgdata:/var/lib/postgresql/data
+    networks:
+      - internal-net
+
+networks:
+  internal-net:
+    driver: bridge
+
+volumes:
+  pg:
+  pgdata:

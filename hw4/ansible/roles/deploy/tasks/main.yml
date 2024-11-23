@@ -1,0 +1,21 @@
+---
+- name: Create directory for app
+  file:
+    path: /opt/app
+    state: directory
+    owner: "{{ ansible_user }}"
+  become: yes
+
+- name: Copy app files
+  copy:
+    src: "{{ path_to_app }}/app/src/"
+    dest: /opt/app/src/
+  become: yes
+
+- name: Install requirements
+  pip:
+    requirements: /opt/app/src/requirements.txt
+  become: yes
+
+- name: Run app
+  shell: nohup python3 /opt/app/src/main.py </dev/null >/dev/null 2>&1 &
