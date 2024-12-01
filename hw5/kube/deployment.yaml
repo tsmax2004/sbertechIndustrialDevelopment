@@ -1,0 +1,35 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: simple-app
+  namespace: default
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: simple-app
+  template:
+    metadata:
+      name: simple-app
+      labels:
+        app: simple-app
+    spec:
+      containers:
+        - name: simple-app
+          env:
+            - name: POSTGRES_USER
+              valueFrom:
+                configMapKeyRef:
+                  name: postgres-config
+                  key: postgres_user
+            - name: POSTGRES_PASSWORD
+              valueFrom:
+                configMapKeyRef:
+                  name: postgres-config
+                  key: postgres_password
+            - name: POSTGRES_DB
+              value: postgres
+            - name: DB_HOST
+              value: postgres
+          image: tsmax2004/simple_app:0.0.1
+          imagePullPolicy: IfNotPresent
