@@ -7,16 +7,13 @@ from prometheus_client import Counter, Histogram, generate_latest, CONTENT_TYPE_
 
 app = Flask(__name__)
 
-# Prometheus metrics
 log_requests_total = Counter('log_requests_total', 'Total number of /log requests')
 log_requests_success = Counter('log_requests_success', 'Number of successful /log requests')
 log_requests_failed = Counter('log_requests_failed', 'Number of failed /log requests')
 request_duration = Histogram('request_duration_seconds', 'Request duration in seconds')
 
-# Ensure logs directory exists
 os.makedirs('/app/logs', exist_ok=True)
 
-# Configure logging
 handler = RotatingFileHandler('/app/logs/app.log', maxBytes=10000, backupCount=3)
 handler.setFormatter(logging.Formatter(
     '%(asctime)s %(levelname)s: %(message)s [in %(pathname)s:%(lineno)d]'
